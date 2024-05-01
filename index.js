@@ -1,3 +1,4 @@
+
 const express = require('express')
 const cors = require('cors') //ajuda a fazer requisicao para o mesmo dominio
 
@@ -9,7 +10,7 @@ app.use(express.json())
 
 
 // solve CORS
-// app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
+app.use(cors({credentials: true, origin: '*'}))
 
 // Public folder for images
 app.use(express.static('public'))
