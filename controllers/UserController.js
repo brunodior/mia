@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const createUserToken = require('../helpers/create-user-token')
 const getToken = require('../helpers/get-token')
 const getUserByToken = require('../helpers/get-user-by-token')
+const { upload } = require('../helpers/image-upload')
+
 
 
 module.exports = class UserController {
@@ -117,8 +119,6 @@ module.exports = class UserController {
 
         let currentUser
 
-        console.log(req.headers.authorization)
-
         if(req.headers.authorization){
 
             const token = getToken(req)
@@ -160,9 +160,11 @@ module.exports = class UserController {
 
         const {name, email, phone, password, confirmpassword} = req.body
         
-        let image = ''
+        // let image = ''
+       
         if(req.file){
-            user.image = req.file.filename
+            console.log('passou aq')
+            user.image = await upload(req, req.file)
         }
 
         // validations

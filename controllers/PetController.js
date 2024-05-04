@@ -5,18 +5,19 @@ const Pet = require('../models/Pet')
 // helpers
 const getToken = require('../helpers/get-token')
 const getUserByToken = require('../helpers/get-user-by-token')
+const { upload } = require('../helpers/image-upload')
 
 const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = class PetController {
-    // create a pet 
+   
     static async create(req, res){
        const {name, age, weight, color} = req.body
 
-       const images = req.files
        const avaliable = true
-
-        // images upload
+    
+       
+    
 
         // validations
         if(!name){
@@ -40,10 +41,15 @@ module.exports = class PetController {
             return
         }
 
-        if(images.length === 0){
+        
+
+        if(!req.file){
             res.status(422).json({message: 'A imagem é obrigatório'})
             return
         }
+
+        // images upload
+        const image = await upload(req, req.file)
 
         const token = getToken(req)
         const user = await getUserByToken(token)
@@ -63,9 +69,8 @@ module.exports = class PetController {
 
             }
         })
-        images.map((image) => {
-            pet.images.push(image.filename)
-        })
+        
+        pet.images.push(image)
 
         try {
             const newPet = await pet.save()
@@ -166,7 +171,9 @@ module.exports = class PetController {
 
         const {name, age, weight, color, avaliable} = req.body
 
-        const images = req.files
+  
+        // images upload
+        // const image = await upload(req, req.file)
 
         const updatedData = {}
 
@@ -217,13 +224,18 @@ module.exports = class PetController {
         }else {
             updatedData.color = color
         }
+        if(!req.body.images){
+        if(!req.file){
+            res.status(422).json({message: 'Imagem obrigatória!'})
+            return
+        }else {
+          
+            const image = await upload(req, req.file)
+            updatedData.images = []
+            updatedData.images.push(image)
+            
+        }}
 
-        if(images.length > 0){
-           updatedData.images = []
-           images.map((image) => {
-            updatedData.images.push(image.filename)
-           })
-        }
         
         await Pet.findByIdAndUpdate(id, updatedData)
 
